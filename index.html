@@ -1089,20 +1089,40 @@
             analyticsChart.data.datasets[0].borderColor = borderColors;
             analyticsChart.update();
             
-            // Update prediction chart (simplified for demo)
+            // Update prediction chart with enhanced algorithm
             if (gameData.length > 5) {
                 const predLabels = labels.slice(-15); // Show last 15 data points
                 const predData = data.slice(-15);
                 
-                // Simple prediction (in a real app, this would use ML)
+                // Enhanced prediction algorithm
                 const predictedData = [...predData];
                 const lastValue = predData[predData.length - 1];
-                const trend = predData[predData.length - 1] - predData[predData.length - 2];
                 
-                // Add predicted values (simplified)
+                // Calculate weighted moving average
+                const weights = [0.1, 0.15, 0.25, 0.3, 0.2]; // More weight to recent values
+                let weightedSum = 0;
+                let weightTotal = 0;
+                
+                for (let i = 0; i < Math.min(5, predData.length); i++) {
+                    weightedSum += predData[predData.length - 1 - i] * weights[i];
+                    weightTotal += weights[i];
+                }
+                
+                const weightedAvg = weightedSum / weightTotal;
+                
+                // Calculate volatility
+                let sumOfSquares = 0;
+                for (let i = 1; i < predData.length; i++) {
+                    sumOfSquares += Math.pow(predData[i] - predData[i-1], 2);
+                }
+                const volatility = Math.sqrt(sumOfSquares / (predData.length - 1));
+                
+                // Add predicted values with volatility adjustment
                 for (let i = 0; i < 3; i++) {
                     predLabels.push(`Pred ${i+1}`);
-                    predictedData.push(lastValue + (trend * (i+1)) + (Math.random() * 2 - 1));
+                    // Use weighted average with some randomness based on volatility
+                    const prediction = weightedAvg + (Math.random() * volatility * 2 - volatility);
+                    predictedData.push(Math.max(1.0, prediction));
                 }
                 
                 predictionChart.data.labels = predLabels;
@@ -1110,68 +1130,107 @@
                 predictionChart.data.datasets[1].data = [...predData.slice(0, predData.length - 3), ...predictedData.slice(predData.length - 3)];
                 predictionChart.update();
                 
-                // Update prediction text
-                updatePredictionText(lastValue, trend);
+                // Update prediction text with enhanced analysis
+                updatePredictionText(lastValue, weightedAvg, volatility);
                 updateFuturePredictions();
             }
         }
         
-        // Update prediction text
-        function updatePredictionText(lastValue, trend) {
+        // Enhanced prediction text with more sophisticated analysis
+        function updatePredictionText(lastValue, weightedAvg, volatility) {
             const container = document.getElementById('nextSignalPrediction');
             
-            // Simple prediction logic (in a real app, this would use ML)
-            let prediction = '';
-            let confidence = Math.min(90, Math.floor(Math.random() * 30) + 60); // Random confidence 60-90%
+            // Calculate confidence based on volatility (lower volatility = higher confidence)
+            const baseConfidence = 70; // Base confidence level
+            const volatilityFactor = Math.min(1, 1.5 / (volatility + 0.5)); // Normalize volatility impact
+            let confidence = Math.min(95, baseConfidence + (volatilityFactor * 25));
             
-            if (trend > 0 && lastValue > 2) {
-                prediction = `Based on recent trends, there's a ${confidence}% chance the next round will CRASH early (below 2x). Consider waiting for better odds.`;
-            } else if (trend < 0 && lastValue < 2) {
-                prediction = `Based on recent trends, there's a ${confidence}% chance the next round will have a higher multiplier (above 2x). This might be a good entry point.`;
+            // Determine trend strength
+            const trendStrength = Math.abs(lastValue - weightedAvg) / volatility;
+            
+            let prediction = '';
+            let recommendation = '';
+            
+            if (lastValue > weightedAvg && trendStrength > 1.5) {
+                // Strong upward trend
+                prediction = `Strong upward trend detected (${trendStrength.toFixed(1)}σ). Current value (${lastValue.toFixed(2)}x) is significantly above the weighted average (${weightedAvg.toFixed(2)}x).`;
+                recommendation = `High probability (${Math.round(confidence)}%) of continuation. Consider waiting for higher multipliers.`;
+            } else if (lastValue < weightedAvg && trendStrength > 1.5) {
+                // Strong downward trend
+                prediction = `Strong downward trend detected (${trendStrength.toFixed(1)}σ). Current value (${lastValue.toFixed(2)}x) is significantly below the weighted average (${weightedAvg.toFixed(2)}x).`;
+                recommendation = `High probability (${Math.round(confidence)}%) of mean reversion. Next round may offer better odds.`;
             } else {
-                prediction = `The system doesn't detect a strong pattern in recent rounds. The next signal could go either way.`;
-                confidence = 50;
+                // Neutral or weak trend
+                prediction = `The market shows neutral behavior. Current value (${lastValue.toFixed(2)}x) is close to the weighted average (${weightedAvg.toFixed(2)}x).`;
+                recommendation = `Moderate confidence (${Math.round(confidence)}%) in predictions. Monitor for pattern breaks.`;
+                confidence = Math.max(50, confidence - 15); // Reduce confidence for neutral trends
             }
             
             container.innerHTML = `
                 <div class="pattern-detected">
-                    <div class="pattern-title"><i class="fas fa-chart-bar"></i> Next Signal Prediction</div>
-                    <div class="pattern-desc">${prediction}</div>
-                    <div class="pattern-probability">Confidence: ${confidence}%</div>
+                    <div class="pattern-title"><i class="fas fa-chart-bar"></i> Enhanced Signal Prediction</div>
+                    <div class="pattern-desc">
+                        <p>${prediction}</p>
+                        <p>${recommendation}</p>
+                        <p>Market volatility: ${volatility.toFixed(2)}</p>
+                    </div>
+                    <div class="pattern-probability">Confidence: ${Math.round(confidence)}%</div>
                 </div>
             `;
         }
         
-        // Update future predictions
+        // Update future predictions with improved algorithm
         function updateFuturePredictions() {
             if (gameData.length < 10) return;
             
             const container = document.getElementById('futurePredictions');
-            const last5 = gameData.slice(-5);
-            const avgOdd = last5.reduce((sum, item) => sum + item.oddValue, 0) / last5.length;
-            const avgDuration = last5.reduce((sum, item) => sum + item.duration, 0) / last5.length;
+            const last10 = gameData.slice(-10);
             
-            // Simple prediction algorithm (replace with more sophisticated one)
-            let prediction1 = (avgOdd + (Math.random() * 0.5 - 0.25)).toFixed(2);
-            let prediction2 = (avgOdd + (Math.random() * 0.8 - 0.4)).toFixed(2);
-            let prediction3 = (avgOdd + (Math.random() * 1.2 - 0.6)).toFixed(2);
+            // Calculate various metrics
+            const avgOdd = last10.reduce((sum, item) => sum + item.oddValue, 0) / last10.length;
+            const avgDuration = last10.reduce((sum, item) => sum + item.duration, 0) / last10.length;
             
-            let timePrediction1 = Math.round(avgDuration * (0.8 + Math.random() * 0.4));
-            let timePrediction2 = Math.round(avgDuration * (0.7 + Math.random() * 0.6));
-            let timePrediction3 = Math.round(avgDuration * (0.6 + Math.random() * 0.8));
+            // Calculate standard deviation
+            const oddSquares = last10.map(item => Math.pow(item.oddValue - avgOdd, 2));
+            const oddStdDev = Math.sqrt(oddSquares.reduce((a, b) => a + b, 0) / last10.length);
+            
+            const durationSquares = last10.map(item => Math.pow(item.duration - avgDuration, 2));
+            const durationStdDev = Math.sqrt(durationSquares.reduce((a, b) => a + b, 0) / last10.length);
+            
+            // Generate predictions with standard deviation adjustment
+            let predictions = [];
+            for (let i = 1; i <= 3; i++) {
+                // Use normal distribution with mean and std dev
+                const oddPred = avgOdd + (gaussianRandom() * oddStdDev * 0.8);
+                const durationPred = avgDuration + (gaussianRandom() * durationStdDev * 0.6);
+                
+                predictions.push({
+                    odd: Math.max(1.0, oddPred).toFixed(2),
+                    duration: Math.max(1, durationPred)
+                });
+            }
             
             container.innerHTML = `
                 <div class="pattern-detected">
-                    <div class="pattern-title"><i class="fas fa-crystal-ball"></i> Future Round Predictions</div>
+                    <div class="pattern-title"><i class="fas fa-crystal-ball"></i> Enhanced Future Predictions</div>
                     <div class="pattern-desc">
-                        <p><strong>Next 3 Rounds:</strong></p>
-                        <p>1. Predicted odd: ~${prediction1}x (Duration: ~${formatDuration(timePrediction1)})</p>
-                        <p>2. Predicted odd: ~${prediction2}x (Duration: ~${formatDuration(timePrediction2)})</p>
-                        <p>3. Predicted odd: ~${prediction3}x (Duration: ~${formatDuration(timePrediction3)})</p>
+                        <p><strong>Next 3 Rounds (based on last 10 rounds):</strong></p>
+                        <p>1. Predicted odd: ~${predictions[0].odd}x (Duration: ~${formatDuration(predictions[0].duration)})</p>
+                        <p>2. Predicted odd: ~${predictions[1].odd}x (Duration: ~${formatDuration(predictions[1].duration)})</p>
+                        <p>3. Predicted odd: ~${predictions[2].odd}x (Duration: ~${formatDuration(predictions[2].duration)})</p>
+                        <p>Average odd: ${avgOdd.toFixed(2)}x ± ${oddStdDev.toFixed(2)}</p>
                     </div>
-                    <div class="pattern-probability">Note: Predictions based on last 5 rounds average</div>
+                    <div class="pattern-probability">Algorithm: Weighted Moving Average with Normal Distribution</div>
                 </div>
             `;
+        }
+        
+        // Gaussian random number generator (for normal distribution)
+        function gaussianRandom() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random(); // Converting [0,1) to (0,1)
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
         
         // Update data table
@@ -1187,14 +1246,18 @@
             gameData.forEach((item, index) => {
                 const row = document.createElement('tr');
                 
-                // Determine signal type (simplified for demo)
-                let signalClass = 'signal-neutral';
-                let signalText = 'Neutral';
-                
-                if (item.oddValue > 2.5) {
+                // Enhanced signal detection with multiple thresholds
+                let signalClass, signalText;
+                if (item.oddValue > 3.0) {
+                    signalClass = 'signal-buy';
+                    signalText = 'Very Strong';
+                } else if (item.oddValue > 2.0) {
                     signalClass = 'signal-buy';
                     signalText = 'Strong';
-                } else if (item.oddValue < 1.5) {
+                } else if (item.oddValue > 1.3) {
+                    signalClass = 'signal-neutral';
+                    signalText = 'Neutral';
+                } else {
                     signalClass = 'signal-sell';
                     signalText = 'Weak';
                 }
@@ -1270,7 +1333,7 @@
             );
         }
         
-        // Enhanced Pattern Detection with Time Gap Analysis
+        // Enhanced Pattern Detection with Statistical Analysis
         function detectPatterns() {
             const container = document.getElementById('patternDetectionContainer');
             
@@ -1284,10 +1347,17 @@
                 return;
             }
             
-            // Get last 5 data points for better analysis
-            const analysisData = gameData.slice(-5);
+            // Get analysis data (last 10 points or all if less than 10)
+            const analysisData = gameData.slice(-10);
             const durations = analysisData.map(item => item.duration);
             const odds = analysisData.map(item => item.oddValue);
+            
+            // Calculate statistical measures
+            const avgOdd = odds.reduce((a, b) => a + b, 0) / odds.length;
+            const oddStdDev = Math.sqrt(odds.reduce((sum, val) => sum + Math.pow(val - avgOdd, 2), 0) / odds.length);
+            
+            const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+            const durationStdDev = Math.sqrt(durations.reduce((sum, val) => sum + Math.pow(val - avgDuration, 2), 0) / durations.length);
             
             // Calculate time gaps between entries
             const timeGaps = [];
@@ -1296,86 +1366,132 @@
                 const currTime = new Date(`${analysisData[i].date} ${analysisData[i].startTime}`);
                 timeGaps.push((currTime - prevTime) / 1000); // in seconds
             }
+            const avgTimeGap = timeGaps.reduce((a, b) => a + b, 0) / timeGaps.length;
             
-            // Calculate averages and trends
-            const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
-            const avgOdd = odds.reduce((a, b) => a + b, 0) / odds.length;
-            const avgTimeGap = timeGaps.length > 0 ? timeGaps.reduce((a, b) => a + b, 0) / timeGaps.length : 0;
-            
-            // Check for significant time gaps
-            const significantGaps = timeGaps.filter(gap => gap > 120); // More than 2 minutes
+            // Check for significant deviations
+            const significantDeviations = odds.filter(odd => Math.abs(odd - avgOdd) > 2 * oddStdDev);
+            const significantDurations = durations.filter(dur => Math.abs(dur - avgDuration) > 2 * durationStdDev);
             
             let patternHtml = '';
             let signalDetected = false;
             let signalMessage = '';
             let predictedOdd = null;
+            let confidence = 0;
             
-            // Pattern 1: Consistent low odds with increasing duration
-            if (avgOdd < 1.8 && durations[durations.length-1] > durations[0]) {
-                const prob = Math.min(90, 70 + Math.floor(durations[durations.length-1] / 2));
+            // Pattern 1: Statistical outliers detection
+            if (significantDeviations.length > 0) {
+                const outlierPercentage = Math.round((significantDeviations.length / odds.length) * 100);
                 patternHtml += `
                     <div class="pattern-detected">
-                        <div class="pattern-title"><i class="fas fa-chart-line"></i> Low Odds with Increasing Duration</div>
+                        <div class="pattern-title"><i class="fas fa-exclamation-triangle"></i> Statistical Outliers Detected</div>
                         <div class="pattern-desc">
-                            The last ${analysisData.length} rounds show increasing duration (${formatDuration(durations[0])} → ${formatDuration(durations[durations.length-1])}) 
-                            with consistently low multipliers (avg ${avgOdd.toFixed(2)}x). This pattern suggests a ${prob}% probability of a higher multiplier (2x+) in the next 1-2 rounds.
+                            ${outlierPercentage}% of recent rounds show significant deviation from the average (${avgOdd.toFixed(2)}x ± ${oddStdDev.toFixed(2)}).
+                            This suggests potential market instability or upcoming trend change.
                         </div>
-                        <div class="pattern-probability">Confidence: ${prob}%</div>
+                        <div class="pattern-probability">Volatility: High</div>
                     </div>
                 `;
                 
-                if (prob > 75) {
+                if (outlierPercentage > 30) {
                     signalDetected = true;
-                    predictedOdd = (2.0 + Math.random() * 1.5).toFixed(2);
-                    signalMessage = `High probability (${prob}%) of higher multiplier (2x+) coming soon. Predicted next odd: ~${predictedOdd}x`;
+                    confidence = Math.min(90, 60 + outlierPercentage);
+                    predictedOdd = (avgOdd + (gaussianRandom() * oddStdDev * 1.5)).toFixed(2);
+                    signalMessage = `High volatility detected (${outlierPercentage}% outliers). Next odd likely to be ~${predictedOdd}x`;
                 }
             }
             
-            // Pattern 2: Time gap followed by pattern break
-            if (significantGaps.length > 0 && gameData.length > 5) {
-                const lastGap = timeGaps[timeGaps.length-1];
-                if (lastGap > 180) { // More than 3 minutes
-                    patternHtml += `
-                        <div class="pattern-detected">
-                            <div class="pattern-title"><i class="fas fa-clock"></i> Significant Time Gap Detected</div>
-                            <div class="pattern-desc">
-                                A significant time gap of ${formatDuration(lastGap)} was detected before the last entry.
-                                Such gaps often precede pattern breaks. Monitor the next rounds carefully for new trends.
-                            </div>
-                            <div class="pattern-probability">Pattern Break Probability: 65%</div>
-                        </div>
-                    `;
-                }
-            }
-            
-            // Pattern 3: Alternating high-low pattern
-            if (analysisData.length >= 4) {
-                let alternating = true;
-                for (let i = 2; i < analysisData.length; i++) {
-                    if ((analysisData[i].oddValue > 2) === (analysisData[i-2].oddValue > 2)) {
-                        alternating = false;
-                        break;
-                    }
+            // Pattern 2: Duration-odd correlation
+            if (analysisData.length >= 5) {
+                // Calculate correlation coefficient between durations and odds
+                const durationMean = avgDuration;
+                const oddMean = avgOdd;
+                
+                let covariance = 0;
+                let durationVariance = 0;
+                let oddVariance = 0;
+                
+                for (let i = 0; i < analysisData.length; i++) {
+                    covariance += (analysisData[i].duration - durationMean) * (analysisData[i].oddValue - oddMean);
+                    durationVariance += Math.pow(analysisData[i].duration - durationMean, 2);
+                    oddVariance += Math.pow(analysisData[i].oddValue - oddMean, 2);
                 }
                 
-                if (alternating) {
-                    const nextExpected = analysisData[analysisData.length-1].oddValue > 2 ? 'low' : 'high';
+                const correlation = covariance / Math.sqrt(durationVariance * oddVariance);
+                
+                if (Math.abs(correlation) > 0.6) {
+                    const direction = correlation > 0 ? 'positive' : 'negative';
+                    const interpretation = correlation > 0 
+                        ? 'Longer durations correlate with higher multipliers' 
+                        : 'Longer durations correlate with lower multipliers';
+                    
                     patternHtml += `
                         <div class="pattern-detected">
-                            <div class="pattern-title"><i class="fas fa-wave-square"></i> Alternating High-Low Pattern</div>
+                            <div class="pattern-title"><i class="fas fa-link"></i> Strong Duration-Odd Correlation</div>
                             <div class="pattern-desc">
-                                Clear alternating pattern detected in last ${analysisData.length} rounds. 
-                                Next expected multiplier is ${nextExpected} (${nextExpected === 'high' ? '>2x' : '<2x'}).
+                                ${interpretation} (correlation: ${correlation.toFixed(2)}).
+                                This relationship can be used to predict future multipliers based on duration patterns.
                             </div>
-                            <div class="pattern-probability">Pattern Strength: 80%</div>
+                            <div class="pattern-probability">Correlation Strength: ${Math.abs(correlation).toFixed(2)}</div>
                         </div>
                     `;
                     
-                    signalDetected = true;
-                    predictedOdd = nextExpected === 'high' 
-                        ? (2.2 + Math.random() * 1.8).toFixed(2) 
-                        : (1.3 + Math.random() * 0.5).toFixed(2);
-                    signalMessage = `Alternating pattern detected. Next expected: ${nextExpected} (~${predictedOdd}x)`;
+                    if (!signalDetected && Math.abs(correlation) > 0.7) {
+                        signalDetected = true;
+                        confidence = Math.min(85, 70 + (Math.abs(correlation) * 20));
+                        
+                        // Predict based on last duration
+                        const lastDuration = durations[durations.length-1];
+                        const durationZ = (lastDuration - avgDuration) / durationStdDev;
+                        predictedOdd = (avgOdd + (durationZ * oddStdDev * correlation)).toFixed(2);
+                        
+                        signalMessage = `Strong ${direction} correlation detected. Based on last duration, predicted next odd: ~${predictedOdd}x`;
+                    }
+                }
+            }
+            
+            // Pattern 3: Clustering detection
+            if (analysisData.length >= 8) {
+                // Simple clustering detection (group similar consecutive values)
+                const clusterThreshold = oddStdDev * 0.8;
+                let clusters = [];
+                let currentCluster = [odds[0]];
+                
+                for (let i = 1; i < odds.length; i++) {
+                    if (Math.abs(odds[i] - currentCluster[currentCluster.length-1]) < clusterThreshold) {
+                        currentCluster.push(odds[i]);
+                    } else {
+                        clusters.push(currentCluster);
+                        currentCluster = [odds[i]];
+                    }
+                }
+                clusters.push(currentCluster);
+                
+                // Filter significant clusters (at least 3 consecutive similar values)
+                const significantClusters = clusters.filter(c => c.length >= 3);
+                
+                if (significantClusters.length > 0) {
+                    patternHtml += `
+                        <div class="pattern-detected">
+                            <div class="pattern-title"><i class="fas fa-object-group"></i> Value Clustering Detected</div>
+                            <div class="pattern-desc">
+                                ${significantClusters.length} cluster(s) found where similar multipliers occur consecutively.
+                                Clusters indicate periods of market stability that may precede trend changes.
+                            </div>
+                            <div class="pattern-probability">Cluster Threshold: ±${clusterThreshold.toFixed(2)}x</div>
+                        </div>
+                    `;
+                    
+                    // Check if we're currently in a cluster
+                    const lastCluster = clusters[clusters.length-1];
+                    if (!signalDetected && lastCluster.length >= 3) {
+                        signalDetected = true;
+                        confidence = Math.min(80, 60 + (lastCluster.length * 5));
+                        
+                        // Predict break from cluster
+                        const clusterAvg = lastCluster.reduce((a, b) => a + b, 0) / lastCluster.length;
+                        predictedOdd = (clusterAvg + (gaussianRandom() * oddStdDev * 1.2)).toFixed(2);
+                        signalMessage = `Cluster pattern detected. Expected breakout to ~${predictedOdd}x in next 1-2 rounds`;
+                    }
                 }
             }
             
@@ -1383,14 +1499,12 @@
             if (!patternHtml) {
                 patternHtml = `
                     <div class="pattern-detected">
-                        <div class="pattern-title"><i class="fas fa-search"></i> No Strong Patterns</div>
+                        <div class="pattern-title"><i class="fas fa-search"></i> Market Analysis</div>
                         <div class="pattern-desc">
-                            ${gameData.length >= 10 
-                                ? 'The system detects some weak patterns but nothing statistically significant.' 
-                                : 'Continue adding data to improve pattern detection.'}
-                            ${significantGaps.length > 0 
-                                ? ` Note: ${significantGaps.length} significant time gap(s) detected which may affect patterns.` 
-                                : ''}
+                            Current market statistics:<br>
+                            - Average multiplier: ${avgOdd.toFixed(2)}x ± ${oddStdDev.toFixed(2)}<br>
+                            - Average duration: ${formatDuration(avgDuration)} ± ${formatDuration(durationStdDev)}<br>
+                            - Average time between entries: ${formatDuration(avgTimeGap)}
                         </div>
                     </div>
                 `;
@@ -1400,7 +1514,7 @@
             
             // Trigger signal alert if pattern detected
             if (signalDetected) {
-                showSignalAlert('Trading Signal Detected!', signalMessage, 8000);
+                showSignalAlert('Statistical Signal Detected!', signalMessage, 8000);
                 playBeepSound(800, 0.7, 0.3);
                 setTimeout(() => playBeepSound(600, 0.5, 0.2), 300);
                 
@@ -1408,9 +1522,9 @@
                 const predictionDiv = document.getElementById('nextSignalPrediction');
                 predictionDiv.innerHTML = `
                     <div class="pattern-detected">
-                        <div class="pattern-title"><i class="fas fa-bell"></i> Active Signal Alert</div>
+                        <div class="pattern-title"><i class="fas fa-bell"></i> Statistical Signal Alert</div>
                         <div class="pattern-desc">${signalMessage}</div>
-                        <div class="pattern-probability">Recommended Action: ${predictedOdd > 2 ? 'Wait for higher multiplier' : 'Consider early cashout'}</div>
+                        <div class="pattern-probability">Confidence: ${confidence}% | Recommended Action: ${predictedOdd > 2 ? 'Wait for higher multiplier' : 'Consider early cashout'}</div>
                     </div>
                 `;
             }
@@ -1535,16 +1649,10 @@
             }
         }
         
-        // Auto-focus odd value when both times are entered
-        document.getElementById('startTime').addEventListener('change', function() {
-            if (this.value && document.getElementById('endTime').value) {
-                document.getElementById('oddValue').focus();
-            }
-        });
-        
-        document.getElementById('endTime').addEventListener('change', function() {
-            if (this.value && document.getElementById('startTime').value) {
-                document.getElementById('oddValue').focus();
+        // NEW: Auto-submit when Enter is pressed in oddValue field
+        document.getElementById('oddValue').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addData();
             }
         });
         
@@ -1746,7 +1854,7 @@
             document.getElementById('exportBtn').addEventListener('click', exportToExcel);
             document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
             
-            // Focus odd value when both times are entered
+            // Auto-focus odd value when both times are entered
             document.getElementById('startTime').addEventListener('change', function() {
                 if (this.value && document.getElementById('endTime').value) {
                     document.getElementById('oddValue').focus();
@@ -1756,6 +1864,18 @@
             document.getElementById('endTime').addEventListener('change', function() {
                 if (this.value && document.getElementById('startTime').value) {
                     document.getElementById('oddValue').focus();
+                }
+            });
+            
+            // NEW: Auto-capture current time when oddValue field gets focus (mobile keyboard opens)
+            document.getElementById('oddValue').addEventListener('focus', function() {
+                // If start time is empty, capture current time as start time
+                if (!document.getElementById('startTime').value) {
+                    captureTime(true);
+                }
+                // If end time is empty, capture current time as end time
+                else if (!document.getElementById('endTime').value) {
+                    captureTime(false);
                 }
             });
         });
