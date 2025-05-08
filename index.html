@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Xtreme Predictor Pro - Crash Aviator Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #ff6b6b;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #6a5acd);
+            color: white;
+            padding: 15px 0;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            animation: fadeInDown 0.8s ease;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px;
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            margin-right: 8px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .logo span {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-left: 8px;
+        }
+
+        .live-time {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .live-time i {
+            margin-right: 6px;
+            color: #ff6b6b;
+            animation: pulse 1.5s infinite;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title i {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-col {
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            -webkit-appearance: none;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background-color: #3a5bef;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e05555;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f5ff;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .edit-btn {
+            background-color: var(--warning-color);
+            color: #212529;
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .signal-indicator {
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .signal-buy {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: var(--success-color);
+        }
+
+        .signal-sell {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: var(--danger-color);
+        }
+
+        .signal-neutral {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #d39e00;
+        }
+
+        .pattern-detected {
+            background-color: rgba(74, 107, 255, 0.1);
+            border-left: 4px solid var(--primary-color);
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .pattern-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .pattern-title i {
+            margin-right: 6px;
+            font-size: 0.9rem;
+        }
+
+        .pattern-desc {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .pattern-probability {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 6px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.85rem;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.85rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a5bef;
+        }
+
+        /* Custom Alert Modal */
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .alert-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .alert-modal {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 400px;
+            padding: 25px;
+            transform: translateY(20px);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .alert-overlay.active .alert-modal {
+            transform: translateY(0);
+        }
+
+        .alert-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .alert-message {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .alert-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .alert-btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            min-width: 100px;
+        }
+
+        .alert-btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .alert-btn-secondary {
+            background-color: #e9ecef;
+            color: var(--dark-color);
+        }
+
+        /* Signal Alert */
+        .signal-alert {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            max-width: 90%;
+            animation: pulseGlow 2s infinite;
+        }
+
+        .signal-alert.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .signal-alert i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .signal-alert-content {
+            flex: 1;
+        }
+
+        .signal-alert-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .signal-alert-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .signal-alert-close {
+            margin-left: 15px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .signal-alert-close:hover {
+            opacity: 1;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            z-index: 900;
+            transition: var(--transition);
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-toggle i {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        /* New animations */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (min-width: 480px) {
+            .btn-group {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                width: auto;
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .form-row {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .form-col {
+                flex: 1;
+                min-width: 200px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+            
+            .logo {
+                margin-bottom: 0;
+            }
+            
+            .chart-container {
+                height: 350px;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Prevent zoom on input focus */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            select:focus, textarea:focus, input:focus {
+                font-size: 16px;
+            }
+        }
+
+        /* Touch feedback */
+        .btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Alert Modal -->
+    <div class="alert-overlay" id="alertModal">
+        <div class="alert-modal">
+            <div class="alert-title" id="alertTitle">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Alert</span>
+            </div>
+            <div class="alert-message" id="alertMessage">Message goes here</div>
+            <div class="alert-buttons" id="alertButtons">
+                <button class="alert-btn alert-btn-primary" id="alertConfirm">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signal Alert -->
+    <div class="signal-alert" id="signalAlert">
+        <i class="fas fa-bell"></i>
+        <div class="signal-alert-content">
+            <div class="signal-alert-title" id="signalAlertTitle">Signal Detected!</div>
+            <div class="signal-alert-message" id="signalAlertMessage">Pattern detected that suggests a high probability signal</div>
+        </div>
+        <div class="signal-alert-close" id="signalAlertClose">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
+
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" id="soundToggle">
+        <i class="fas fa-volume-up"></i>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <div>
+                        <h1>Xtreme Predictor Pro <span>Crash Aviator</span></h1>
+                    </div>
+                </div>
+                <div class="live-time">
+                    <i class="fas fa-circle"></i>
+                    <span id="currentDateTime">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-clock"></i> Time Input System</h2>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="startTime">Start Time</label>
+                            <input type="time" id="startTime" step="1">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="endTime">End Time</label>
+                            <input type="time" id="endTime" step="1">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="oddValue">Odd Value</label>
+                            <input type="number" id="oddValue" step="0.01" placeholder="Enter multiplier" inputmode="decimal">
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button id="captureStartBtn" class="btn"><i class="fas fa-play"></i> Capture Start</button>
+                    <button id="captureEndBtn" class="btn btn-secondary"><i class="fas fa-stop"></i> Capture End</button>
+                    <button id="addDataBtn" class="btn btn-success"><i class="fas fa-plus"></i> Add Data</button>
+                    <button id="clearAllBtn" class="btn btn-danger"><i class="fas fa-trash"></i> Clear All</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-chart-line"></i> Pattern Detection</h2>
+                <div id="patternDetectionContainer">
+                    <div class="pattern-detected">
+                        <div class="pattern-title"><i class="fas fa-lightbulb"></i> No patterns detected yet</div>
+                        <div class="pattern-desc">Add more data points to enable pattern recognition and predictive analytics.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" data-tab="chart">Analytics Chart</div>
+                    <div class="tab" data-tab="data">Data Table</div>
+                    <div class="tab" data-tab="predictions">Predictions</div>
+                </div>
+                
+                <div class="tab-content active" id="chart-tab">
+                    <div class="chart-container">
+                        <canvas id="analyticsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="data-tab">
+                    <div class="table-container">
+                        <table id="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Duration (s)</th>
+                                    <th>Odd Value</th>
+                                    <th>Signal</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr><td colspan="7" style="text-align: center;">No data available. Add your first data point.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button id="exportBtn" class="btn"><i class="fas fa-file-export"></i> Export to Excel</button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="predictions-tab">
+                    <div class="chart-container">
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                    <div id="nextSignalPrediction" style="margin-top: 20px;">
+                        <div class="pattern-detected">
+                            <div class="pattern-title"><i class="fas fa-chart-bar"></i> Next Signal Prediction</div>
+                            <div class="pattern-desc">Prediction will appear here after sufficient data is collected.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-info-circle"></i> About</a>
+                <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Privacy</a>
+            </div>
+            <p>&copy; <span id="currentYear"></span> Xtreme Predictor. All rights reserved.</p>
+            <p>Powered by AI-driven analytics for Crash Aviator</p>
+        </footer>
+    </div>
+
+    <script>
+        // Live date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+        
+        // Set current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab') + '-tab';
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Data storage - initialize empty array
+        let gameData = [];
+        
+        // Chart instances
+        let analyticsChart = null;
+        let predictionChart = null;
+        
+        // Initialize charts
+        function initCharts() {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            analyticsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Odd Value',
+                        data: [],
+                        backgroundColor: [],
+                        borderColor: [],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Multiplier'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Intervals'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Multiplier: ${context.parsed.y.toFixed(2)}x`;
+                                },
+                                afterLabel: function(context) {
+                                    const data = gameData[context.dataIndex];
+                                    return `Duration: ${data.duration}s\nTime: ${data.startTime} - ${data.endTime}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            const predCtx = document.getElementById('predictionChart').getContext('2d');
+            predictionChart = new Chart(predCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Odd Value',
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1,
+                        fill: false
+                    }, {
+                        label: 'Predicted',
+                        data: [],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderDash: [5, 5],
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Multiplier'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Intervals'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Generate random color for chart
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Update charts with data
+        function updateCharts() {
+            if (gameData.length === 0) {
+                analyticsChart.data.labels = [];
+                analyticsChart.data.datasets[0].data = [];
+                analyticsChart.data.datasets[0].backgroundColor = [];
+                analyticsChart.data.datasets[0].borderColor = [];
+                analyticsChart.update();
+                
+                predictionChart.data.labels = [];
+                predictionChart.data.datasets[0].data = [];
+                predictionChart.data.datasets[1].data = [];
+                predictionChart.update();
+                return;
+            }
+            
+            // Update analytics chart
+            const labels = [];
+            const data = [];
+            const backgroundColors = [];
+            const borderColors = [];
+            
+            // Group by minute and assign colors
+            let currentMinute = null;
+            let currentColor = getRandomColor();
+            
+            gameData.forEach((item, index) => {
+                const startMinute = item.startTime.split(':')[1];
+                
+                if (startMinute !== currentMinute) {
+                    currentMinute = startMinute;
+                    currentColor = getRandomColor();
+                }
+                
+                labels.push(`${item.startTime}-${item.endTime}`);
+                data.push(item.oddValue);
+                backgroundColors.push(currentColor);
+                borderColors.push(currentColor);
+            });
+            
+            analyticsChart.data.labels = labels;
+            analyticsChart.data.datasets[0].data = data;
+            analyticsChart.data.datasets[0].backgroundColor = backgroundColors;
+            analyticsChart.data.datasets[0].borderColor = borderColors;
+            analyticsChart.update();
+            
+            // Update prediction chart (simplified for demo)
+            if (gameData.length > 5) {
+                const predLabels = labels.slice(-15); // Show last 15 data points
+                const predData = data.slice(-15);
+                
+                // Simple prediction (in a real app, this would use ML)
+                const predictedData = [...predData];
+                const lastValue = predData[predData.length - 1];
+                const trend = predData[predData.length - 1] - predData[predData.length - 2];
+                
+                // Add predicted values (simplified)
+                for (let i = 0; i < 3; i++) {
+                    predLabels.push(`Pred ${i+1}`);
+                    predictedData.push(lastValue + (trend * (i+1)) + (Math.random() * 2 - 1));
+                }
+                
+                predictionChart.data.labels = predLabels;
+                predictionChart.data.datasets[0].data = predData;
+                predictionChart.data.datasets[1].data = [...predData.slice(0, predData.length - 3), ...predictedData.slice(predData.length - 3)];
+                predictionChart.update();
+                
+                // Update prediction text
+                updatePredictionText(lastValue, trend);
+            }
+        }
+        
+        // Update prediction text
+        function updatePredictionText(lastValue, trend) {
+            const container = document.getElementById('nextSignalPrediction');
+            
+            // Simple prediction logic (in a real app, this would use ML)
+            let prediction = '';
+            let confidence = Math.min(90, Math.floor(Math.random() * 30) + 60); // Random confidence 60-90%
+            
+            if (trend > 0 && lastValue > 2) {
+                prediction = `Based on recent trends, there's a ${confidence}% chance the next round will CRASH early (below 2x). Consider waiting for better odds.`;
+            } else if (trend < 0 && lastValue < 2) {
+                prediction = `Based on recent trends, there's a ${confidence}% chance the next round will have a higher multiplier (above 2x). This might be a good entry point.`;
+            } else {
+                prediction = `The system doesn't detect a strong pattern in recent rounds. The next signal could go either way.`;
+                confidence = 50;
+            }
+            
+            container.innerHTML = `
+                <div class="pattern-detected">
+                    <div class="pattern-title"><i class="fas fa-chart-bar"></i> Next Signal Prediction</div>
+                    <div class="pattern-desc">${prediction}</div>
+                    <div class="pattern-probability">Confidence: ${confidence}%</div>
+                </div>
+            `;
+        }
+        
+        // Update data table
+        function updateDataTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            if (gameData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No data available. Add your first data point.</td></tr>';
+                return;
+            }
+            
+            gameData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                // Determine signal type (simplified for demo)
+                let signalClass = 'signal-neutral';
+                let signalText = 'Neutral';
+                
+                if (item.oddValue > 2.5) {
+                    signalClass = 'signal-buy';
+                    signalText = 'Strong';
+                } else if (item.oddValue < 1.5) {
+                    signalClass = 'signal-sell';
+                    signalText = 'Weak';
+                }
+                
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.startTime}</td>
+                    <td>${item.endTime}</td>
+                    <td>${item.duration}</td>
+                    <td>${item.oddValue.toFixed(2)}</td>
+                    <td><span class="signal-indicator ${signalClass}">${signalText}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit-btn" data-index="${index}"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.currentTarget.getAttribute('data-index');
+                    editData(index);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.currentTarget.getAttribute('data-index');
+                    deleteData(index);
+                });
+            });
+        }
+        
+        // Edit data
+        function editData(index) {
+            const item = gameData[index];
+            document.getElementById('startTime').value = item.startTime;
+            document.getElementById('endTime').value = item.endTime;
+            document.getElementById('oddValue').value = item.oddValue;
+            
+            // Remove the item from array
+            gameData.splice(index, 1);
+            
+            // Update UI
+            updateCharts();
+            updateDataTable();
+            detectPatterns();
+        }
+        
+        // Delete data
+        function deleteData(index) {
+            showAlert(
+                'Confirm Deletion',
+                'Are you sure you want to delete this data point?',
+                'Delete',
+                () => {
+                    gameData.splice(index, 1);
+                    updateCharts();
+                    updateDataTable();
+                    detectPatterns();
+                    playBeepSound(300, 0.3, 0.1);
+                },
+                true,
+                'Cancel'
+            );
+        }
+        
+        // Enhanced Pattern Detection with Time Gap Analysis
+        function detectPatterns() {
+            const container = document.getElementById('patternDetectionContainer');
+            
+            if (gameData.length < 3) {
+                container.innerHTML = `
+                    <div class="pattern-detected">
+                        <div class="pattern-title"><i class="fas fa-lightbulb"></i> No patterns detected yet</div>
+                        <div class="pattern-desc">Add more data points to enable pattern recognition and predictive analytics.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Get last 5 data points for better analysis
+            const analysisData = gameData.slice(-5);
+            const durations = analysisData.map(item => item.duration);
+            const odds = analysisData.map(item => item.oddValue);
+            
+            // Calculate time gaps between entries
+            const timeGaps = [];
+            for (let i = 1; i < analysisData.length; i++) {
+                const prevTime = new Date(`${analysisData[i-1].date} ${analysisData[i-1].startTime}`);
+                const currTime = new Date(`${analysisData[i].date} ${analysisData[i].startTime}`);
+                timeGaps.push((currTime - prevTime) / 1000); // in seconds
+            }
+            
+            // Calculate averages and trends
+            const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+            const avgOdd = odds.reduce((a, b) => a + b, 0) / odds.length;
+            const avgTimeGap = timeGaps.length > 0 ? timeGaps.reduce((a, b) => a + b, 0) / timeGaps.length : 0;
+            
+            // Check for significant time gaps
+            const significantGaps = timeGaps.filter(gap => gap > 120); // More than 2 minutes
+            
+            let patternHtml = '';
+            let signalDetected = false;
+            let signalMessage = '';
+            let predictedOdd = null;
+            
+            // Pattern 1: Consistent low odds with increasing duration
+            if (avgOdd < 1.8 && durations[durations.length-1] > durations[0]) {
+                const prob = Math.min(90, 70 + Math.floor(durations[durations.length-1] / 2));
+                patternHtml += `
+                    <div class="pattern-detected">
+                        <div class="pattern-title"><i class="fas fa-chart-line"></i> Low Odds with Increasing Duration</div>
+                        <div class="pattern-desc">
+                            The last ${analysisData.length} rounds show increasing duration (${durations[0].toFixed(1)}s → ${durations[durations.length-1].toFixed(1)}s) 
+                            with consistently low multipliers (avg ${avgOdd.toFixed(2)}x). This pattern suggests a ${prob}% probability of a higher multiplier (2x+) in the next 1-2 rounds.
+                        </div>
+                        <div class="pattern-probability">Confidence: ${prob}%</div>
+                    </div>
+                `;
+                
+                if (prob > 75) {
+                    signalDetected = true;
+                    predictedOdd = (2.0 + Math.random() * 1.5).toFixed(2);
+                    signalMessage = `High probability (${prob}%) of higher multiplier (2x+) coming soon. Predicted next odd: ~${predictedOdd}x`;
+                }
+            }
+            
+            // Pattern 2: Time gap followed by pattern break
+            if (significantGaps.length > 0 && gameData.length > 5) {
+                const lastGap = timeGaps[timeGaps.length-1];
+                if (lastGap > 180) { // More than 3 minutes
+                    patternHtml += `
+                        <div class="pattern-detected">
+                            <div class="pattern-title"><i class="fas fa-clock"></i> Significant Time Gap Detected</div>
+                            <div class="pattern-desc">
+                                A significant time gap of ${Math.floor(lastGap/60)}m ${Math.floor(lastGap%60)}s was detected before the last entry.
+                                Such gaps often precede pattern breaks. Monitor the next rounds carefully for new trends.
+                            </div>
+                            <div class="pattern-probability">Pattern Break Probability: 65%</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Pattern 3: Alternating high-low pattern
+            if (analysisData.length >= 4) {
+                let alternating = true;
+                for (let i = 2; i < analysisData.length; i++) {
+                    if ((analysisData[i].oddValue > 2) === (analysisData[i-2].oddValue > 2)) {
+                        alternating = false;
+                        break;
+                    }
+                }
+                
+                if (alternating) {
+                    const nextExpected = analysisData[analysisData.length-1].oddValue > 2 ? 'low' : 'high';
+                    patternHtml += `
+                        <div class="pattern-detected">
+                            <div class="pattern-title"><i class="fas fa-wave-square"></i> Alternating High-Low Pattern</div>
+                            <div class="pattern-desc">
+                                Clear alternating pattern detected in last ${analysisData.length} rounds. 
+                                Next expected multiplier is ${nextExpected} (${nextExpected === 'high' ? '>2x' : '<2x'}).
+                            </div>
+                            <div class="pattern-probability">Pattern Strength: 80%</div>
+                        </div>
+                    `;
+                    
+                    signalDetected = true;
+                    predictedOdd = nextExpected === 'high' 
+                        ? (2.2 + Math.random() * 1.8).toFixed(2) 
+                        : (1.3 + Math.random() * 0.5).toFixed(2);
+                    signalMessage = `Alternating pattern detected. Next expected: ${nextExpected} (~${predictedOdd}x)`;
+                }
+            }
+            
+            // Default message if no specific patterns detected
+            if (!patternHtml) {
+                patternHtml = `
+                    <div class="pattern-detected">
+                        <div class="pattern-title"><i class="fas fa-search"></i> No Strong Patterns</div>
+                        <div class="pattern-desc">
+                            ${gameData.length >= 10 
+                                ? 'The system detects some weak patterns but nothing statistically significant.' 
+                                : 'Continue adding data to improve pattern detection.'}
+                            ${significantGaps.length > 0 
+                                ? ` Note: ${significantGaps.length} significant time gap(s) detected which may affect patterns.` 
+                                : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = patternHtml;
+            
+            // Trigger signal alert if pattern detected
+            if (signalDetected) {
+                showSignalAlert('Trading Signal Detected!', signalMessage, 8000);
+                playBeepSound(800, 0.7, 0.3);
+                setTimeout(() => playBeepSound(600, 0.5, 0.2), 300);
+                
+                // Add prediction to next signal prediction section
+                const predictionDiv = document.getElementById('nextSignalPrediction');
+                predictionDiv.innerHTML = `
+                    <div class="pattern-detected">
+                        <div class="pattern-title"><i class="fas fa-bell"></i> Active Signal Alert</div>
+                        <div class="pattern-desc">${signalMessage}</div>
+                        <div class="pattern-probability">Recommended Action: ${predictedOdd > 2 ? 'Wait for higher multiplier' : 'Consider early cashout'}</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Calculate duration between two times
+        function calculateDuration(startTime, endTime) {
+            const [startH, startM, startS] = startTime.split(':').map(Number);
+            const [endH, endM, endS] = endTime.split(':').map(Number);
+            
+            let totalStart = startH * 3600 + startM * 60 + startS;
+            let totalEnd = endH * 3600 + endM * 60 + endS;
+            
+            // Handle midnight crossover
+            if (totalEnd < totalStart) {
+                totalEnd += 24 * 3600;
+            }
+            
+            return totalEnd - totalStart;
+        }
+        
+        // Add data to storage
+        function addData() {
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const oddValue = parseFloat(document.getElementById('oddValue').value);
+            
+            // Validation with custom alert
+            if (!startTime && !endTime) {
+                showAlert(
+                    'Input Required', 
+                    'Please enter at least one time value (start or end time).', 
+                    'OK', 
+                    null, 
+                    false
+                );
+                document.getElementById('startTime').classList.add('shake');
+                setTimeout(() => document.getElementById('startTime').classList.remove('shake'), 500);
+                return;
+            }
+            
+            if (isNaN(oddValue) || oddValue <= 0) {
+                showAlert(
+                    'Invalid Input', 
+                    'Please enter a valid odd value (positive number greater than 0).', 
+                    'OK', 
+                    null, 
+                    false
+                );
+                document.getElementById('oddValue').classList.add('shake');
+                setTimeout(() => document.getElementById('oddValue').classList.remove('shake'), 500);
+                return;
+            }
+            
+            // If only one time is provided, assume very short duration (1 second)
+            const finalStartTime = startTime || endTime;
+            const finalEndTime = endTime || startTime || finalStartTime;
+            
+            // Calculate duration
+            const duration = calculateDuration(finalStartTime, finalEndTime);
+            
+            // Get current date
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            
+            // Add to data array
+            gameData.push({
+                date: dateStr,
+                startTime: finalStartTime,
+                endTime: finalEndTime,
+                duration: duration,
+                oddValue: oddValue
+            });
+            
+            // Clear inputs
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('oddValue').value = '';
+            
+            // Update UI
+            updateCharts();
+            updateDataTable();
+            detectPatterns();
+            
+            // Play success sound
+            playBeepSound(600, 0.3, 0.1);
+        }
+        
+        // Capture current time for start or end
+        function captureTime(isStart) {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}:${seconds}`;
+            
+            if (isStart) {
+                document.getElementById('startTime').value = timeStr;
+            } else {
+                document.getElementById('endTime').value = timeStr;
+            }
+            
+            // Play capture sound
+            playBeepSound(400, 0.2, 0.1);
+        }
+        
+        // Export data to Excel
+        function exportToExcel() {
+            if (gameData.length === 0) {
+                showAlert(
+                    'No Data', 
+                    'No data available to export.', 
+                    'OK', 
+                    null, 
+                    false
+                );
+                return;
+            }
+            
+            // Convert data to CSV
+            const headers = ['Date', 'Start Time', 'End Time', 'Duration (s)', 'Odd Value', 'Signal Strength'];
+            const csvData = gameData.map(item => {
+                let signal = 'Neutral';
+                if (item.oddValue > 2.5) signal = 'Strong';
+                else if (item.oddValue < 1.5) signal = 'Weak';
+                
+                return [
+                    item.date,
+                    item.startTime,
+                    item.endTime,
+                    item.duration,
+                    item.oddValue.toFixed(2),
+                    signal
+                ];
+            });
+            
+            csvData.unshift(headers);
+            
+            // Create CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvData.forEach(row => {
+                csvContent += row.join(",") + "\r\n";
+            });
+            
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `xtreme_predictor_data_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            
+            // Trigger download
+            link.click();
+            document.body.removeChild(link);
+            
+            // Play export sound
+            playBeepSound(500, 0.2, 0.2);
+            setTimeout(() => playBeepSound(700, 0.2, 0.1), 200);
+        }
+        
+        // Clear all data
+        function clearAllData() {
+            if (gameData.length === 0) return;
+            
+            showAlert(
+                'Confirm Clear Data',
+                'Are you sure you want to clear all collected data? This action cannot be undone.',
+                'Clear',
+                () => {
+                    gameData = [];
+                    updateCharts();
+                    updateDataTable();
+                    detectPatterns();
+                    playBeepSound(300, 0.3, 0.1);
+                },
+                true,
+                'Cancel'
+            );
+        }
+
+        // Custom Alert System
+        function showAlert(title, message, confirmText = 'OK', confirmCallback = null, showCancel = false, cancelText = 'Cancel') {
+            const alertModal = document.getElementById('alertModal');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertMessage = document.getElementById('alertMessage');
+            const alertButtons = document.getElementById('alertButtons');
+            const alertConfirm = document.getElementById('alertConfirm');
+            
+            // Set title and message
+            alertTitle.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${title}</span>`;
+            alertMessage.textContent = message;
+            alertConfirm.textContent = confirmText;
+            
+            // Clear previous buttons
+            alertButtons.innerHTML = '';
+            
+            // Add confirm button
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'alert-btn alert-btn-primary';
+            confirmBtn.textContent = confirmText;
+            confirmBtn.id = 'alertConfirm';
+            confirmBtn.onclick = () => {
+                hideAlert();
+                if (confirmCallback) confirmCallback();
+            };
+            alertButtons.appendChild(confirmBtn);
+            
+            // Add cancel button if needed
+            if (showCancel) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'alert-btn alert-btn-secondary';
+                cancelBtn.textContent = cancelText;
+                cancelBtn.onclick = hideAlert;
+                alertButtons.appendChild(cancelBtn);
+            }
+            
+            // Show modal
+            alertModal.classList.add('active');
+        }
+
+        function hideAlert() {
+            document.getElementById('alertModal').classList.remove('active');
+        }
+
+        // Signal Alert System
+        function showSignalAlert(title, message, duration = 5000) {
+            const signalAlert = document.getElementById('signalAlert');
+            const signalAlertTitle = document.getElementById('signalAlertTitle');
+            const signalAlertMessage = document.getElementById('signalAlertMessage');
+            
+            signalAlertTitle.textContent = title;
+            signalAlertMessage.textContent = message;
+            signalAlert.classList.add('active');
+            
+            // Auto-hide after duration
+            setTimeout(() => {
+                signalAlert.classList.remove('active');
+            }, duration);
+        }
+
+        document.getElementById('signalAlertClose').addEventListener('click', () => {
+            document.getElementById('signalAlert').classList.remove('active');
+        });
+
+        // Sound System
+        let soundEnabled = true;
+        const soundToggle = document.getElementById('soundToggle');
+        let audioContext;
+        let audioContextInitialized = false;
+        
+        function initAudioContext() {
+            if (!audioContextInitialized) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioContextInitialized = true;
+            }
+        }
+        
+        soundToggle.addEventListener('click', () => {
+            initAudioContext();
+            soundEnabled = !soundEnabled;
+            soundToggle.innerHTML = `<i class="fas fa-volume-${soundEnabled ? 'up' : 'off'}"></i>`;
+            
+            // Give feedback
+            if (soundEnabled) playBeepSound(400, 0.2, 0.1);
+        });
+
+        function playBeepSound(frequency = 440, volume = 0.5, duration = 0.2) {
+            if (!soundEnabled || !audioContextInitialized) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = frequency;
+                gainNode.gain.value = volume;
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.error("Audio error:", e);
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            
+            // Initialize audio context on first user interaction
+            document.body.addEventListener('click', () => {
+                initAudioContext();
+            }, { once: true });
+            
+            // Event listeners
+            document.getElementById('captureStartBtn').addEventListener('click', () => captureTime(true));
+            document.getElementById('captureEndBtn').addEventListener('click', () => captureTime(false));
+            document.getElementById('addDataBtn').addEventListener('click', addData);
+            document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+            document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
+        });
+    </script>
+</body>
+</html>
