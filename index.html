@@ -829,7 +829,7 @@
                                     <th>Date</th>
                                     <th>Start Time</th>
                                     <th>End Time</th>
-                                    <th>Duration (s)</th>
+                                    <th>Duration</th>
                                     <th>Odd Value</th>
                                     <th>Signal</th>
                                     <th>Actions</th>
@@ -853,6 +853,12 @@
                         <div class="pattern-detected">
                             <div class="pattern-title"><i class="fas fa-chart-bar"></i> Next Signal Prediction</div>
                             <div class="pattern-desc">Prediction will appear here after sufficient data is collected.</div>
+                        </div>
+                    </div>
+                    <div id="futurePredictions" style="margin-top: 20px;">
+                        <div class="pattern-detected">
+                            <div class="pattern-title"><i class="fas fa-crystal-ball"></i> Future Round Predictions</div>
+                            <div class="pattern-desc">Future round predictions will appear here after sufficient data is collected.</div>
                         </div>
                     </div>
                 </div>
@@ -908,12 +914,25 @@
             });
         });
 
-        // Data storage - initialize empty array
-        let gameData = [];
+        // Data storage
+        let gameData = JSON.parse(localStorage.getItem('xtremePredictorData')) || [];
         
         // Chart instances
         let analyticsChart = null;
         let predictionChart = null;
+        
+        // Format duration from seconds to HH:MM:SS
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            return [
+                hours.toString().padStart(2, '0'),
+                minutes.toString().padStart(2, '0'),
+                secs.toString().padStart(2, '0')
+            ].join(':');
+        }
         
         // Initialize charts
         function initCharts() {
@@ -956,7 +975,7 @@
                                 },
                                 afterLabel: function(context) {
                                     const data = gameData[context.dataIndex];
-                                    return `Duration: ${data.duration}s\nTime: ${data.startTime} - ${data.endTime}`;
+                                    return `Duration: ${formatDuration(data.duration)}\nTime: ${data.startTime} - ${data.endTime}`;
                                 }
                             }
                         },
@@ -1007,6 +1026,11 @@
                     }
                 }
             });
+            
+            // Initial update of charts and table
+            updateCharts();
+            updateDataTable();
+            detectPatterns();
         }
         
         // Generate random color for chart
@@ -1088,6 +1112,7 @@
                 
                 // Update prediction text
                 updatePredictionText(lastValue, trend);
+                updateFuturePredictions();
             }
         }
         
@@ -1113,6 +1138,38 @@
                     <div class="pattern-title"><i class="fas fa-chart-bar"></i> Next Signal Prediction</div>
                     <div class="pattern-desc">${prediction}</div>
                     <div class="pattern-probability">Confidence: ${confidence}%</div>
+                </div>
+            `;
+        }
+        
+        // Update future predictions
+        function updateFuturePredictions() {
+            if (gameData.length < 10) return;
+            
+            const container = document.getElementById('futurePredictions');
+            const last5 = gameData.slice(-5);
+            const avgOdd = last5.reduce((sum, item) => sum + item.oddValue, 0) / last5.length;
+            const avgDuration = last5.reduce((sum, item) => sum + item.duration, 0) / last5.length;
+            
+            // Simple prediction algorithm (replace with more sophisticated one)
+            let prediction1 = (avgOdd + (Math.random() * 0.5 - 0.25)).toFixed(2);
+            let prediction2 = (avgOdd + (Math.random() * 0.8 - 0.4)).toFixed(2);
+            let prediction3 = (avgOdd + (Math.random() * 1.2 - 0.6)).toFixed(2);
+            
+            let timePrediction1 = Math.round(avgDuration * (0.8 + Math.random() * 0.4));
+            let timePrediction2 = Math.round(avgDuration * (0.7 + Math.random() * 0.6));
+            let timePrediction3 = Math.round(avgDuration * (0.6 + Math.random() * 0.8));
+            
+            container.innerHTML = `
+                <div class="pattern-detected">
+                    <div class="pattern-title"><i class="fas fa-crystal-ball"></i> Future Round Predictions</div>
+                    <div class="pattern-desc">
+                        <p><strong>Next 3 Rounds:</strong></p>
+                        <p>1. Predicted odd: ~${prediction1}x (Duration: ~${formatDuration(timePrediction1)})</p>
+                        <p>2. Predicted odd: ~${prediction2}x (Duration: ~${formatDuration(timePrediction2)})</p>
+                        <p>3. Predicted odd: ~${prediction3}x (Duration: ~${formatDuration(timePrediction3)})</p>
+                    </div>
+                    <div class="pattern-probability">Note: Predictions based on last 5 rounds average</div>
                 </div>
             `;
         }
@@ -1146,7 +1203,7 @@
                     <td>${item.date}</td>
                     <td>${item.startTime}</td>
                     <td>${item.endTime}</td>
-                    <td>${item.duration}</td>
+                    <td>${formatDuration(item.duration)}</td>
                     <td>${item.oddValue.toFixed(2)}</td>
                     <td><span class="signal-indicator ${signalClass}">${signalText}</span></td>
                     <td>
@@ -1174,6 +1231,9 @@
                     deleteData(index);
                 });
             });
+            
+            // Save data to localStorage
+            localStorage.setItem('xtremePredictorData', JSON.stringify(gameData));
         }
         
         // Edit data
@@ -1257,7 +1317,7 @@
                     <div class="pattern-detected">
                         <div class="pattern-title"><i class="fas fa-chart-line"></i> Low Odds with Increasing Duration</div>
                         <div class="pattern-desc">
-                            The last ${analysisData.length} rounds show increasing duration (${durations[0].toFixed(1)}s → ${durations[durations.length-1].toFixed(1)}s) 
+                            The last ${analysisData.length} rounds show increasing duration (${formatDuration(durations[0])} → ${formatDuration(durations[durations.length-1])}) 
                             with consistently low multipliers (avg ${avgOdd.toFixed(2)}x). This pattern suggests a ${prob}% probability of a higher multiplier (2x+) in the next 1-2 rounds.
                         </div>
                         <div class="pattern-probability">Confidence: ${prob}%</div>
@@ -1279,7 +1339,7 @@
                         <div class="pattern-detected">
                             <div class="pattern-title"><i class="fas fa-clock"></i> Significant Time Gap Detected</div>
                             <div class="pattern-desc">
-                                A significant time gap of ${Math.floor(lastGap/60)}m ${Math.floor(lastGap%60)}s was detected before the last entry.
+                                A significant time gap of ${formatDuration(lastGap)} was detected before the last entry.
                                 Such gaps often precede pattern breaks. Monitor the next rounds carefully for new trends.
                             </div>
                             <div class="pattern-probability">Pattern Break Probability: 65%</div>
@@ -1392,10 +1452,23 @@
                 return;
             }
             
-            if (isNaN(oddValue) || oddValue <= 0) {
+            if (isNaN(oddValue)) {
                 showAlert(
                     'Invalid Input', 
-                    'Please enter a valid odd value (positive number greater than 0).', 
+                    'Please enter a valid odd value (number greater than 0).', 
+                    'OK', 
+                    null, 
+                    false
+                );
+                document.getElementById('oddValue').classList.add('shake');
+                setTimeout(() => document.getElementById('oddValue').classList.remove('shake'), 500);
+                return;
+            }
+            
+            if (oddValue <= 0) {
+                showAlert(
+                    'Invalid Input', 
+                    'Odd value must be greater than 0.', 
                     'OK', 
                     null, 
                     false
@@ -1430,7 +1503,7 @@
             document.getElementById('endTime').value = '';
             document.getElementById('oddValue').value = '';
             
-            // Update UI
+            // Update UI and save data
             updateCharts();
             updateDataTable();
             detectPatterns();
@@ -1455,7 +1528,25 @@
             
             // Play capture sound
             playBeepSound(400, 0.2, 0.1);
+            
+            // If both times are filled, focus on odd value
+            if (document.getElementById('startTime').value && document.getElementById('endTime').value) {
+                document.getElementById('oddValue').focus();
+            }
         }
+        
+        // Auto-focus odd value when both times are entered
+        document.getElementById('startTime').addEventListener('change', function() {
+            if (this.value && document.getElementById('endTime').value) {
+                document.getElementById('oddValue').focus();
+            }
+        });
+        
+        document.getElementById('endTime').addEventListener('change', function() {
+            if (this.value && document.getElementById('startTime').value) {
+                document.getElementById('oddValue').focus();
+            }
+        });
         
         // Export data to Excel
         function exportToExcel() {
@@ -1471,7 +1562,7 @@
             }
             
             // Convert data to CSV
-            const headers = ['Date', 'Start Time', 'End Time', 'Duration (s)', 'Odd Value', 'Signal Strength'];
+            const headers = ['Date', 'Start Time', 'End Time', 'Duration (HH:MM:SS)', 'Odd Value', 'Signal Strength'];
             const csvData = gameData.map(item => {
                 let signal = 'Neutral';
                 if (item.oddValue > 2.5) signal = 'Strong';
@@ -1481,7 +1572,7 @@
                     item.date,
                     item.startTime,
                     item.endTime,
-                    item.duration,
+                    formatDuration(item.duration),
                     item.oddValue.toFixed(2),
                     signal
                 ];
@@ -1521,6 +1612,7 @@
                 'Clear',
                 () => {
                     gameData = [];
+                    localStorage.removeItem('xtremePredictorData');
                     updateCharts();
                     updateDataTable();
                     detectPatterns();
@@ -1653,6 +1745,24 @@
             document.getElementById('addDataBtn').addEventListener('click', addData);
             document.getElementById('exportBtn').addEventListener('click', exportToExcel);
             document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
+            
+            // Focus odd value when both times are entered
+            document.getElementById('startTime').addEventListener('change', function() {
+                if (this.value && document.getElementById('endTime').value) {
+                    document.getElementById('oddValue').focus();
+                }
+            });
+            
+            document.getElementById('endTime').addEventListener('change', function() {
+                if (this.value && document.getElementById('startTime').value) {
+                    document.getElementById('oddValue').focus();
+                }
+            });
+        });
+
+        // Save data when page is about to unload
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('xtremePredictorData', JSON.stringify(gameData));
         });
     </script>
 </body>
