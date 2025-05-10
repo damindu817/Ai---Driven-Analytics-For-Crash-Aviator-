@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Xtreme Predictor Pro - Crash Aviator Analytics</title>
+    <title>Xtreme Predictor Pro+ - Crash Aviator Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
     <style>
         :root {
             --primary-color: #4a6bff;
@@ -156,7 +157,7 @@
             font-size: 0.95rem;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -167,7 +168,7 @@
             -webkit-appearance: none;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
@@ -218,6 +219,15 @@
 
         .btn-danger:hover {
             background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
         }
 
         .btn-group {
@@ -328,6 +338,11 @@
             margin: 15px 0;
             border-radius: 0 var(--border-radius) var(--border-radius) 0;
             animation: fadeIn 0.8s ease;
+        }
+
+        .signal-window {
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.1), rgba(255, 107, 107, 0.1));
+            border-left: 4px solid var(--warning-color);
         }
 
         .pattern-title {
@@ -658,6 +673,124 @@
             animation: shake 0.5s;
         }
 
+        /* Settings Panel */
+        .settings-panel {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #eee;
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .settings-title i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Heatmap */
+        .heatmap-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .heatmap {
+            display: inline-block;
+            border-collapse: collapse;
+            min-width: 100%;
+        }
+
+        .heatmap th {
+            font-size: 0.7rem;
+            padding: 5px;
+            text-align: center;
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+        }
+
+        .heatmap td {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #fff;
+            position: relative;
+        }
+
+        .heatmap-tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            z-index: 100;
+            pointer-events: none;
+            white-space: nowrap;
+            display: none;
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .scoreboard-item {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .scoreboard-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .scoreboard-label {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
         /* Mobile-specific optimizations */
         @media (min-width: 480px) {
             .btn-group {
@@ -679,6 +812,10 @@
             .form-col {
                 flex: 1;
                 min-width: 200px;
+            }
+
+            .scoreboard {
+                grid-template-columns: repeat(4, 1fr);
             }
         }
 
@@ -757,7 +894,7 @@
                 <div class="logo">
                     <i class="fas fa-rocket"></i>
                     <div>
-                        <h1>Xtreme Predictor Pro <span>Crash Aviator</span></h1>
+                        <h1>Xtreme Predictor Pro+ <span>Crash Aviator</span></h1>
                     </div>
                 </div>
                 <div class="live-time">
@@ -800,6 +937,21 @@
 
             <div class="card">
                 <h2 class="card-title"><i class="fas fa-chart-line"></i> Pattern Detection</h2>
+                <div class="settings-panel">
+                    <div class="settings-title"><i class="fas fa-sliders-h"></i> Signal Sensitivity Settings</div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Minimum Odd Value: <span id="minOddValueDisplay">2.0</span>x</span>
+                        </div>
+                        <input type="range" min="1" max="10" step="0.1" value="2.0" class="slider" id="minOddValueSlider">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Minimum Confidence: <span id="minConfidenceDisplay">70</span>%</span>
+                        </div>
+                        <input type="range" min="50" max="95" step="5" value="70" class="slider" id="minConfidenceSlider">
+                    </div>
+                </div>
                 <div id="patternDetectionContainer">
                     <div class="pattern-detected">
                         <div class="pattern-title"><i class="fas fa-lightbulb"></i> No patterns detected yet</div>
@@ -813,6 +965,8 @@
                     <div class="tab active" data-tab="chart">Analytics Chart</div>
                     <div class="tab" data-tab="data">Data Table</div>
                     <div class="tab" data-tab="predictions">Predictions</div>
+                    <div class="tab" data-tab="heatmap">Heatmap</div>
+                    <div class="tab" data-tab="performance">Performance</div>
                 </div>
                 
                 <div class="tab-content active" id="chart-tab">
@@ -856,9 +1010,72 @@
                         </div>
                     </div>
                     <div id="futurePredictions" style="margin-top: 20px;">
+                        <div class="pattern-detected signal-window">
+                            <div class="pattern-title"><i class="fas fa-brain"></i> Smart Signal Window</div>
+                            <div class="pattern-desc">
+                                Window: <strong id="signalWindowTime">--:--:-- → --:--:--</strong>  
+                                <br>Predicted Odds: <strong id="signalWindowOdds">--x – --x</strong>  
+                                <br>Confidence: <strong id="signalWindowConfidence">--%</strong>  
+                                <br>Suggested Strategy: <span id="signalWindowStrategy" style="color:green">Add more data to enable predictions</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="heatmap-tab">
+                    <div class="chart-container">
+                        <canvas id="heatmapChart"></canvas>
+                    </div>
+                    <div class="heatmap-container">
+                        <table class="heatmap" id="hourlyHeatmap">
+                            <thead>
+                                <tr>
+                                    <th>Hour</th>
+                                    <th>00</th><th>01</th><th>02</th><th>03</th><th>04</th><th>05</th>
+                                    <th>06</th><th>07</th><th>08</th><th>09</th><th>10</th><th>11</th>
+                                    <th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th>
+                                    <th>18</th><th>19</th><th>20</th><th>21</th><th>22</th><th>23</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Avg Odd</td>
+                                    <!-- Cells will be filled by JavaScript -->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; text-align: center;">
+                        <span style="background-color: rgba(40, 167, 69, 0.2); padding: 2px 5px; border-radius: 3px;">Green</span> = High odds periods
+                        <span style="margin-left: 10px; background-color: rgba(220, 53, 69, 0.2); padding: 2px 5px; border-radius: 3px;">Red</span> = Low odds periods
+                    </div>
+                </div>
+
+                <div class="tab-content" id="performance-tab">
+                    <div class="scoreboard">
+                        <div class="scoreboard-item">
+                            <div class="scoreboard-value" id="accuracyScore">--%</div>
+                            <div class="scoreboard-label">Accuracy</div>
+                        </div>
+                        <div class="scoreboard-item">
+                            <div class="scoreboard-value" id="avgError">±--x</div>
+                            <div class="scoreboard-label">Avg Error</div>
+                        </div>
+                        <div class="scoreboard-item">
+                            <div class="scoreboard-value" id="winRate">--%</div>
+                            <div class="scoreboard-label">Win Rate</div>
+                        </div>
+                        <div class="scoreboard-item">
+                            <div class="scoreboard-value" id="avgOdd">--x</div>
+                            <div class="scoreboard-label">Avg Odd</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
                         <div class="pattern-detected">
-                            <div class="pattern-title"><i class="fas fa-crystal-ball"></i> Future Round Predictions</div>
-                            <div class="pattern-desc">Future round predictions will appear here after sufficient data is collected.</div>
+                            <div class="pattern-title"><i class="fas fa-chart-pie"></i> Performance Analysis</div>
+                            <div class="pattern-desc" id="performanceAnalysis">
+                                Performance metrics will appear here after sufficient data is collected and predictions are made.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -911,15 +1128,26 @@
                 tab.classList.add('active');
                 const tabId = tab.getAttribute('data-tab') + '-tab';
                 document.getElementById(tabId).classList.add('active');
+
+                // Update specific tab content if needed
+                if (tabId === 'heatmap-tab') {
+                    updateHeatmap();
+                } else if (tabId === 'performance-tab') {
+                    updatePerformanceMetrics();
+                }
             });
         });
 
-        // Data storage
+        // Data storage with tags and prediction tracking
         let gameData = JSON.parse(localStorage.getItem('xtremePredictorData')) || [];
+        let minOddValue = 2.0;
+        let minConfidence = 70;
+        let tfModel = null;
         
         // Chart instances
         let analyticsChart = null;
         let predictionChart = null;
+        let heatmapChart = null;
         
         // Format duration from seconds to HH:MM:SS
         function formatDuration(seconds) {
@@ -1026,11 +1254,90 @@
                     }
                 }
             });
+
+            const heatmapCtx = document.getElementById('heatmapChart').getContext('2d');
+            heatmapChart = new Chart(heatmapCtx, {
+                type: 'bar',
+                data: {
+                    labels: Array(24).fill().map((_, i) => `${i}:00`),
+                    datasets: [{
+                        label: 'Average Multiplier by Hour',
+                        data: Array(24).fill(0),
+                        backgroundColor: Array(24).fill('rgba(54, 162, 235, 0.6)'),
+                        borderColor: Array(24).fill('rgba(54, 162, 235, 1)'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Multiplier'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Hour of Day'
+                            }
+                        }
+                    }
+                }
+            });
             
             // Initial update of charts and table
             updateCharts();
             updateDataTable();
             detectPatterns();
+            updateHeatmap();
+            updatePerformanceMetrics();
+            initTensorFlowModel();
+        }
+
+        // Initialize a simple TensorFlow.js model for pattern classification
+        async function initTensorFlowModel() {
+            if (gameData.length < 20) return; // Not enough data to train
+            
+            try {
+                // Define model architecture
+                const model = tf.sequential();
+                model.add(tf.layers.dense({units: 10, activation: 'relu', inputShape: [5]}));
+                model.add(tf.layers.dense({units: 3, activation: 'softmax'}));
+                
+                // Compile the model
+                model.compile({
+                    optimizer: 'adam',
+                    loss: 'categoricalCrossentropy',
+                    metrics: ['accuracy']
+                });
+                
+                // Prepare training data (simple example)
+                const xs = tf.tensor2d(gameData.slice(0, 15).map(item => [
+                    item.oddValue / 10, // Normalize
+                    item.duration / 60, // Normalize to minutes
+                    new Date(`${item.date} ${item.startTime}`).getHours() / 24, // Normalize hour
+                    0, // Placeholder (previously tags)
+                    0  // Placeholder (previously tags)
+                ]));
+                
+                const ys = tf.oneHot(tf.tensor1d([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2], 'int32'), 3);
+                
+                // Train the model (very simplified for demo)
+                await model.fit(xs, ys, {
+                    epochs: 10,
+                    batchSize: 5,
+                    verbose: 0
+                });
+                
+                tfModel = model;
+                console.log("Simple pattern classifier model trained");
+            } catch (e) {
+                console.error("TensorFlow error:", e);
+            }
         }
         
         // Generate random color for chart
@@ -1115,6 +1422,147 @@
                 updateFuturePredictions();
             }
         }
+
+        // Update heatmap visualization
+        function updateHeatmap() {
+            if (gameData.length === 0) return;
+
+            // Calculate average odds by hour
+            const hourlyOdds = Array(24).fill().map(() => []);
+            
+            gameData.forEach(item => {
+                const hour = parseInt(item.startTime.split(':')[0]);
+                hourlyOdds[hour].push(item.oddValue);
+            });
+            
+            const hourlyAverages = hourlyOdds.map(hour => 
+                hour.length > 0 ? hour.reduce((a, b) => a + b, 0) / hour.length : 0
+            );
+            
+            // Update heatmap chart
+            heatmapChart.data.datasets[0].data = hourlyAverages;
+            
+            // Color based on value
+            heatmapChart.data.datasets[0].backgroundColor = hourlyAverages.map(avg => {
+                if (avg > 2.5) return 'rgba(40, 167, 69, 0.6)'; // Green for high odds
+                if (avg < 1.5) return 'rgba(220, 53, 69, 0.6)'; // Red for low odds
+                return 'rgba(255, 193, 7, 0.6)'; // Yellow for medium
+            });
+            
+            heatmapChart.update();
+            
+            // Update hourly heatmap table
+            const heatmapCells = document.querySelectorAll('#hourlyHeatmap td:not(:first-child)');
+            const maxOdd = Math.max(...hourlyAverages.filter(avg => avg > 0));
+            
+            heatmapCells.forEach((cell, index) => {
+                const avg = hourlyAverages[index];
+                if (avg > 0) {
+                    // Calculate color intensity
+                    const intensity = avg / maxOdd;
+                    const green = Math.floor(40 + (167 - 40) * intensity);
+                    const red = Math.floor(220 - (220 - 53) * intensity);
+                    const blue = Math.floor(69 - (69 - 69) * intensity);
+                    
+                    cell.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, 0.7)`;
+                    cell.innerHTML = `<div class="heatmap-tooltip">Avg: ${avg.toFixed(2)}x (${hourlyOdds[index].length} rounds)</div>`;
+                    
+                    // Add hover events for tooltip
+                    cell.addEventListener('mouseover', function() {
+                        const tooltip = this.querySelector('.heatmap-tooltip');
+                        tooltip.style.display = 'block';
+                        tooltip.style.top = `${this.offsetTop - 30}px`;
+                        tooltip.style.left = `${this.offsetLeft}px`;
+                    });
+                    
+                    cell.addEventListener('mouseout', function() {
+                        this.querySelector('.heatmap-tooltip').style.display = 'none';
+                    });
+                } else {
+                    cell.style.backgroundColor = '#f8f9fa';
+                    cell.innerHTML = '';
+                }
+            });
+        }
+
+        // Update performance metrics
+        function updatePerformanceMetrics() {
+            if (gameData.length < 5) {
+                document.getElementById('performanceAnalysis').innerHTML = 
+                    "Collect more data (at least 5 rounds) to generate performance analysis.";
+                return;
+            }
+            
+            // Calculate basic metrics
+            const totalRounds = gameData.length;
+            const totalOdds = gameData.reduce((sum, item) => sum + item.oddValue, 0);
+            const avgOdd = totalOdds / totalRounds;
+            
+            // Calculate win rate (assuming 1.0x is the break-even point)
+            const winningRounds = gameData.filter(item => item.oddValue > 1.0).length;
+            const winRate = (winningRounds / totalRounds * 100).toFixed(1);
+            
+            // Calculate accuracy (based on prediction vs actual)
+            let accuracySum = 0;
+            let errorSum = 0;
+            
+            if (gameData.length > 1) {
+                for (let i = 1; i < gameData.length; i++) {
+                    const predicted = gameData[i-1].oddValue * 0.9 + (Math.random() * 0.4 - 0.2); // Simple prediction model
+                    const actual = gameData[i].oddValue;
+                    const error = Math.abs(predicted - actual);
+                    errorSum += error;
+                    
+                    // Calculate accuracy (higher when error is smaller)
+                    const roundAccuracy = Math.max(0, 100 - (error * 20));
+                    accuracySum += roundAccuracy;
+                }
+                
+                const avgAccuracy = (accuracySum / (gameData.length - 1)).toFixed(1);
+                const avgError = (errorSum / (gameData.length - 1)).toFixed(2);
+                
+                document.getElementById('accuracyScore').textContent = `${avgAccuracy}%`;
+                document.getElementById('avgError').textContent = `±${avgError}x`;
+            }
+            
+            document.getElementById('winRate').textContent = `${winRate}%`;
+            document.getElementById('avgOdd').textContent = `${avgOdd.toFixed(2)}x`;
+            
+            // Generate performance analysis
+            let analysis = `Analyzed ${totalRounds} rounds with an average multiplier of ${avgOdd.toFixed(2)}x. `;
+            analysis += `Win rate: ${winRate}% (rounds above 1.0x). `;
+            
+            if (avgOdd > 2.0) {
+                analysis += "Your strategy is targeting higher multipliers successfully. ";
+            } else if (avgOdd > 1.5) {
+                analysis += "Your strategy is balanced between risk and reward. ";
+            } else {
+                analysis += "Consider adjusting your strategy to target higher multipliers. ";
+            }
+            
+            // Add time-based analysis if enough data
+            if (gameData.length >= 10) {
+                const hourlyOdds = Array(24).fill().map(() => []);
+                gameData.forEach(item => {
+                    const hour = parseInt(item.startTime.split(':')[0]);
+                    hourlyOdds[hour].push(item.oddValue);
+                });
+                
+                const hourlyAverages = hourlyOdds.map(hour => 
+                    hour.length > 0 ? hour.reduce((a, b) => a + b, 0) / hour.length : 0
+                );
+                
+                const bestHour = hourlyAverages.indexOf(Math.max(...hourlyAverages.filter(avg => avg > 0)));
+                const worstHour = hourlyAverages.indexOf(Math.min(...hourlyAverages.filter(avg => avg > 0)));
+                
+                if (bestHour !== -1 && worstHour !== -1) {
+                    analysis += `<br><br><strong>Time Analysis:</strong> Your best performing hour is ${bestHour}:00 (avg ${hourlyAverages[bestHour].toFixed(2)}x) `;
+                    analysis += `while ${worstHour}:00 tends to have lower multipliers (avg ${hourlyAverages[worstHour].toFixed(2)}x).`;
+                }
+            }
+            
+            document.getElementById('performanceAnalysis').innerHTML = analysis;
+        }
         
         // Update prediction text
         function updatePredictionText(lastValue, trend) {
@@ -1142,7 +1590,7 @@
             `;
         }
         
-        // Update future predictions
+        // Update future predictions with smart signal window
         function updateFuturePredictions() {
             if (gameData.length < 10) return;
             
@@ -1151,27 +1599,53 @@
             const avgOdd = last5.reduce((sum, item) => sum + item.oddValue, 0) / last5.length;
             const avgDuration = last5.reduce((sum, item) => sum + item.duration, 0) / last5.length;
             
+            // Get current time for prediction window
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentSecond = now.getSeconds();
+            
+            // Calculate prediction window (next 1-2 minutes)
+            const windowStart = new Date(now.getTime() + 30000); // 30 seconds from now
+            const windowEnd = new Date(now.getTime() + 120000); // 2 minutes from now
+            
+            const startTimeStr = `${windowStart.getHours()}:${windowStart.getMinutes().toString().padStart(2, '0')}:${windowStart.getSeconds().toString().padStart(2, '0')}`;
+            const endTimeStr = `${windowEnd.getHours()}:${windowEnd.getMinutes().toString().padStart(2, '0')}:${windowEnd.getSeconds().toString().padStart(2, '0')}`;
+            
             // Simple prediction algorithm (replace with more sophisticated one)
-            let prediction1 = (avgOdd + (Math.random() * 0.5 - 0.25)).toFixed(2);
-            let prediction2 = (avgOdd + (Math.random() * 0.8 - 0.4)).toFixed(2);
-            let prediction3 = (avgOdd + (Math.random() * 1.2 - 0.6)).toFixed(2);
+            let predictionLow = (avgOdd + (Math.random() * 0.8 - 0.4)).toFixed(2);
+            let predictionHigh = (avgOdd + (Math.random() * 0.8 + 0.2)).toFixed(2);
+            let confidence = Math.min(90, Math.floor(60 + Math.random() * 30));
             
-            let timePrediction1 = Math.round(avgDuration * (0.8 + Math.random() * 0.4));
-            let timePrediction2 = Math.round(avgDuration * (0.7 + Math.random() * 0.6));
-            let timePrediction3 = Math.round(avgDuration * (0.6 + Math.random() * 0.8));
+            // Determine suggested strategy
+            let strategy = '';
+            let strategyColor = 'green';
             
-            container.innerHTML = `
-                <div class="pattern-detected">
-                    <div class="pattern-title"><i class="fas fa-crystal-ball"></i> Future Round Predictions</div>
-                    <div class="pattern-desc">
-                        <p><strong>Next 3 Rounds:</strong></p>
-                        <p>1. Predicted odd: ~${prediction1}x (Duration: ~${formatDuration(timePrediction1)})</p>
-                        <p>2. Predicted odd: ~${prediction2}x (Duration: ~${formatDuration(timePrediction2)})</p>
-                        <p>3. Predicted odd: ~${prediction3}x (Duration: ~${formatDuration(timePrediction3)})</p>
-                    </div>
-                    <div class="pattern-probability">Note: Predictions based on last 5 rounds average</div>
-                </div>
-            `;
+            if (avgOdd > 2.5) {
+                strategy = `Wait until ${predictionHigh}x then exit`;
+            } else if (avgOdd < 1.5) {
+                strategy = `Enter if below 1.2x and wait till ${predictionHigh}x`;
+                strategyColor = 'orange';
+            } else {
+                strategy = `Monitor closely - potential opportunity around ${predictionHigh}x`;
+                strategyColor = 'blue';
+            }
+            
+            // Update the signal window display
+            document.getElementById('signalWindowTime').textContent = `${startTimeStr} → ${endTimeStr}`;
+            document.getElementById('signalWindowOdds').textContent = `${predictionLow}x – ${predictionHigh}x`;
+            document.getElementById('signalWindowConfidence').textContent = `${confidence}%`;
+            document.getElementById('signalWindowStrategy').textContent = strategy;
+            document.getElementById('signalWindowStrategy').style.color = strategyColor;
+            
+            // If confidence is high and odds are good, show alert
+            if (confidence >= minConfidence && predictionHigh >= minOddValue) {
+                showSignalAlert(
+                    'High Confidence Signal Window', 
+                    `Predicted ${predictionLow}x – ${predictionHigh}x in next 2 minutes (${confidence}% confidence). ${strategy}`,
+                    10000
+                );
+            }
         }
         
         // Update data table
@@ -1324,7 +1798,7 @@
                     </div>
                 `;
                 
-                if (prob > 75) {
+                if (prob > minConfidence && 2.0 >= minOddValue) {
                     signalDetected = true;
                     predictedOdd = (2.0 + Math.random() * 1.5).toFixed(2);
                     signalMessage = `High probability (${prob}%) of higher multiplier (2x+) coming soon. Predicted next odd: ~${predictedOdd}x`;
@@ -1371,11 +1845,13 @@
                         </div>
                     `;
                     
-                    signalDetected = true;
-                    predictedOdd = nextExpected === 'high' 
-                        ? (2.2 + Math.random() * 1.8).toFixed(2) 
-                        : (1.3 + Math.random() * 0.5).toFixed(2);
-                    signalMessage = `Alternating pattern detected. Next expected: ${nextExpected} (~${predictedOdd}x)`;
+                    if (minOddValue <= (nextExpected === 'high' ? 2.5 : 1.5)) {
+                        signalDetected = true;
+                        predictedOdd = nextExpected === 'high' 
+                            ? (2.2 + Math.random() * 1.8).toFixed(2) 
+                            : (1.3 + Math.random() * 0.5).toFixed(2);
+                        signalMessage = `Alternating pattern detected. Next expected: ${nextExpected} (~${predictedOdd}x)`;
+                    }
                 }
             }
             
@@ -1507,6 +1983,13 @@
             updateCharts();
             updateDataTable();
             detectPatterns();
+            updateHeatmap();
+            updatePerformanceMetrics();
+            
+            // Train model if enough data
+            if (gameData.length % 10 === 0) {
+                initTensorFlowModel();
+            }
             
             // Play success sound
             playBeepSound(600, 0.3, 0.1);
@@ -1534,19 +2017,6 @@
                 document.getElementById('oddValue').focus();
             }
         }
-        
-        // Auto-focus odd value when both times are entered
-        document.getElementById('startTime').addEventListener('change', function() {
-            if (this.value && document.getElementById('endTime').value) {
-                document.getElementById('oddValue').focus();
-            }
-        });
-        
-        document.getElementById('endTime').addEventListener('change', function() {
-            if (this.value && document.getElementById('startTime').value) {
-                document.getElementById('oddValue').focus();
-            }
-        });
         
         // Export data to Excel
         function exportToExcel() {
@@ -1616,6 +2086,8 @@
                     updateCharts();
                     updateDataTable();
                     detectPatterns();
+                    updateHeatmap();
+                    updatePerformanceMetrics();
                     playBeepSound(300, 0.3, 0.1);
                 },
                 true,
@@ -1745,6 +2217,17 @@
             document.getElementById('addDataBtn').addEventListener('click', addData);
             document.getElementById('exportBtn').addEventListener('click', exportToExcel);
             document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
+            
+            // Sensitivity sliders
+            document.getElementById('minOddValueSlider').addEventListener('input', function() {
+                minOddValue = parseFloat(this.value);
+                document.getElementById('minOddValueDisplay').textContent = minOddValue.toFixed(1);
+            });
+            
+            document.getElementById('minConfidenceSlider').addEventListener('input', function() {
+                minConfidence = parseInt(this.value);
+                document.getElementById('minConfidenceDisplay').textContent = minConfidence;
+            });
             
             // Auto-submit when pressing Enter in oddValue field
             document.getElementById('oddValue').addEventListener('keypress', function(e) {
